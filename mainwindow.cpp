@@ -54,40 +54,29 @@ MainWindow::MainWindow(QWidget *parent) :
     console = new Console;
     console->setEnabled(false);
     setCentralWidget(console);
-//Instantiation of serial port and
-//setting dialog ,show wave dialog
+    //Instantiation of serial port and
+    //setting dialog ,show wave dialog
     serial = new QSerialPort(this);
     settings = new SettingsDialog;
     showWave = new ShowWave;
-    //设置程序系统托盘图标
-    sysIcon=new QSystemTrayIcon(this);
-    QIcon icon=QIcon(":\\images\\sysicon");
-//    qDebug()<<icon;
-    sysIcon->setIcon(icon);
-    sysIcon->setToolTip("Apollo_Qt_Software!");
-    sysIcon->show();
-    sysIcon->showMessage("Serial Port Helper",
-                         "Qt software is runnning!",
-                         QSystemTrayIcon::Information,5000);
+    //initialize system tray icon
+    initSysTrayIcon();
+    //initialize signal and slot
+    initActionsConnections();
 
+    status = new QLabel;
+    ui->statusBar->addWidget(status);
     ui->actionConnect->setEnabled(true);
     ui->actionDisconnect->setEnabled(false);
     ui->actionQuit->setEnabled(true);
     ui->actionConfigure->setEnabled(true);
     ui->actionShowWave->setEnabled(true);
     ui->actionSave->setEnabled(true);
-
-    status = new QLabel;
-    ui->statusBar->addWidget(status);
-//initialize signal and slot
-    initActionsConnections();
-
-//serial port open error handler
+    //serial port open error handler
     connect(serial, static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
             this, &MainWindow::handleError);
     connect(serial, &QSerialPort::readyRead, this, &MainWindow::readData);
     connect(console, &Console::getData, this, &MainWindow::writeData);
-
 }
 
 
@@ -160,9 +149,12 @@ void MainWindow::writeData(const QByteArray &data)
 void MainWindow::readData()
 {
 //    QByteArray data = serial->readAll();
-    QByteArray data = serial->readLine();
-    console->putData(data);
-    showWave->putData(data);
+    while(!serial->atEnd()){
+        QByteArray data = serial->readLine();
+        console->putData(data);
+        showWave->putData(data);
+    }
+
 }
 
 
@@ -217,6 +209,20 @@ void MainWindow::initActionsConnections()
     connect(ui->actionAboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
     connect(ui->actionShowWave, &QAction::triggered, showWave, &MainWindow::show);
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::saveFile);
+}
+
+//设置程序系统托盘图标
+void MainWindow::initSysTrayIcon()
+{
+    sysIcon=new QSystemTrayIcon();
+    QIcon icon=QIcon(":\\images\\sysicon");
+//    qDebug()<<icon;
+    sysIcon->setIcon(icon);
+    sysIcon->setToolTip("Apollo_Qt_Software!");
+    sysIcon->show();
+    sysIcon->showMessage("Serial Port Helper",
+                         "Qt software is runnning!",
+                         QSystemTrayIcon::Information,5000);
 }
 //show message on statu bar
 void MainWindow::showStatusMessage(const QString &message)

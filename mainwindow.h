@@ -72,7 +72,7 @@ private slots:
     void saveFile();
 private:
     void initActionsConnections();
-
+    void initSysTrayIcon();
 private:
     void showStatusMessage(const QString &message);
 

@@ -1,14 +1,17 @@
 #include "showwave.h"
 #include "ui_showwave.h"
-#include <QVector>
-#include <QMessageBox>
-
 #include <qwt_symbol.h>
 #include <qwt_plot_panner.h>
 #include <qwt_plot_magnifier.h>
 #include <qwt_legend.h>
-
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
+#include <QVector>
+#include <QMessageBox>
 #include <QDebug>
+
+
 
 #define  CH1_CURVE_COLOR  Qt::blue
 #define  CH2_CURVE_COLOR  Qt::red
@@ -63,6 +66,12 @@ ShowWave::ShowWave(QWidget *parent) :QMainWindow(parent),ui(new Ui::ShowWave),
 ShowWave::~ShowWave()
 {
     delete recv_data;
+//    delete grid;
+//    delete ch1_curve;
+//    delete ch2_curve;
+//    delete ch3_curve;
+//    delete ch4_curve;
+
     delete ui;
     qDebug()<<"The showwave window is destoryed!!!";
 }
@@ -391,4 +400,70 @@ void ShowWave::putData(const QByteArray &data)
     }
 }
 
+void ShowWave::on_loadFileBtn_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(
+                this,
+                tr("打开文件"),
+                ".",
+                ("Text File(*.txt)"));
+    if(fileName.isEmpty()){
+        return ;
+    }
+    else{
+        QFile fileOut(fileName);
+        if(!fileOut.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QMessageBox::critical(this,"Error",tr("打开文件失败!"));
+        }
+        else{
+            QTextStream ts(&fileOut);
+            QString  strLine;
+            while(!ts.atEnd()){
+                ts>>strLine;//读取打头的单词
+                if(strLine == "")
+                {
+                    ts.skipWhiteSpace();
+                    continue;
+                }
+                if(strLine.startsWith(frame_ch1_str, Qt::CaseInsensitive))
+                {
+                    strLine.remove(frame_ch1_str,Qt::CaseInsensitive);
+                    ch1_y_data.append(strLine.toDouble());
 
+                    ts.readLine();
+                    continue;
+                }
+                if(strLine.startsWith(frame_ch2_str, Qt::CaseInsensitive))
+                {
+                    strLine.remove(frame_ch2_str,Qt::CaseInsensitive);
+                    ch2_y_data.append(strLine.toDouble());
+
+                    ts.readLine();
+                    continue;
+                }
+                if(strLine.startsWith(frame_ch3_str, Qt::CaseInsensitive))
+                {
+                    strLine.remove(frame_ch3_str,Qt::CaseInsensitive);
+                    ch3_y_data.append(strLine.toDouble());
+
+                    ts.readLine();
+                    continue;
+                }
+                if(strLine.startsWith(frame_ch4_str, Qt::CaseInsensitive))
+                {
+                    strLine.remove(frame_ch4_str,Qt::CaseInsensitive);
+                    ch4_y_data.append(strLine.toDouble());
+
+                    ts.readLine();
+                    continue;
+                }
+            }
+            fileOut.close();
+
+            QMessageBox::information(this,
+                                     "Information",
+                                     tr("加载成功"));
+        }
+    }
+}

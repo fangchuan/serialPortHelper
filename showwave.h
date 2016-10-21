@@ -51,6 +51,8 @@ private slots:
 
     void on_frame_ch4_editingFinished();
 
+    void on_loadFileBtn_clicked();
+
 private:
     Ui::ShowWave *ui;
 
