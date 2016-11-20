@@ -21,7 +21,8 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     console.h \
     settingsdialog.h \
-    showwave.h
+    showwave.h \
+    common.h
 
 FORMS    += mainwindow.ui \
     settingsdialog.ui \
@@ -31,6 +32,6 @@ RESOURCES += \
     terminal.qrc
 
 DEFINES += QT_DLL QWT_DLL
-#LIBS += -L"F:\QT_Development\qt_5.6.1\5.6\mingw49_32\lib" -lqwtd
-LIBS += -L"F:\QT_Development\qt_5.6.1\5.6\mingw49_32\lib" -lqwt
+LIBS += -L"F:\QT_Development\qt_5.6.1\5.6\mingw49_32\lib" -lqwtd
+#LIBS += -L"F:\QT_Development\qt_5.6.1\5.6\mingw49_32\lib" -lqwt
 INCLUDEPATH += F:\QT_Development\qt_5.6.1\5.6\mingw49_32\include\QWT

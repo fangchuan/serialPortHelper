@@ -1,9 +1,8 @@
-#ifndef SHOWWAVE_H
+﻿#ifndef SHOWWAVE_H
 #define SHOWWAVE_H
 
 #include <QMainWindow>
 #include <qwt_plot.h>
-#include <qwt_point_data.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
 
@@ -57,7 +56,7 @@ private:
     Ui::ShowWave *ui;
 
     int id_timer;//定时器ID
-    quint32 time;//计数器，用于更新plot时间轴
+    double time;//计数器，用于更新plot时间轴
     _SHOWFLAG _flag;//plot的操作flag
     //4个帧首字符串
     QString frame_ch1_str;

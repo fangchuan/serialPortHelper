@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2012 Denis Shienkov <denis.shienkov@gmail.com>
 ** Copyright (C) 2012 Laszlo Papp <lpapp@kde.org>
@@ -37,6 +37,7 @@
 #include "console.h"
 #include "settingsdialog.h"
 #include "showwave.h"
+#include "common.h"
 #include <QMessageBox>
 #include <QLabel>
 #include <QtSerialPort/QSerialPort>
@@ -59,8 +60,10 @@ MainWindow::MainWindow(QWidget *parent) :
     serial = new QSerialPort(this);
     settings = new SettingsDialog;
     showWave = new ShowWave;
+#ifdef  USE_SYSTRAYICON
     //initialize system tray icon
     initSysTrayIcon();
+#endif
     //initialize signal and slot
     initActionsConnections();
 
@@ -85,7 +88,9 @@ MainWindow::~MainWindow()
     delete settings;
     delete showWave;
     delete ui;
+#ifdef USE_DEBUG
     qDebug()<<"The manwindow is destoryed!!!";
+#endif
 }
 
 //open the setting serial port
@@ -122,7 +127,7 @@ void MainWindow::closeSerialPort()
     {
         serial->close();
     }
-    console->setEnabled(false);
+//    console->setEnabled(false);
     ui->actionConnect->setEnabled(true);
     ui->actionDisconnect->setEnabled(false);
     ui->actionConfigure->setEnabled(true);
@@ -153,6 +158,9 @@ void MainWindow::readData()
         QByteArray data = serial->readLine();
         console->putData(data);
         showWave->putData(data);
+#ifdef USE_DEBUG
+//        qDebug()<<data;
+#endif
     }
 
 }

@@ -1,5 +1,6 @@
-#include "showwave.h"
+﻿#include "showwave.h"
 #include "ui_showwave.h"
+#include "common.h"
 #include <qwt_symbol.h>
 #include <qwt_plot_panner.h>
 #include <qwt_plot_magnifier.h>
@@ -12,19 +13,6 @@
 #include <QDebug>
 
 
-
-#define  CH1_CURVE_COLOR  Qt::blue
-#define  CH2_CURVE_COLOR  Qt::red
-#define  CH3_CURVE_COLOR  Qt::green
-#define  CH4_CURVE_COLOR  Qt::black
-#define  CH_PEN_WIDTH     2
-
-#define  CH1_VALUE        1
-#define  CH2_VALUE        2
-#define  CH3_VALUE        3
-#define  CH4_VALUE        4
-
-//QList<QByteArray> baList;
 
 
 ShowWave::ShowWave(QWidget *parent) :QMainWindow(parent),ui(new Ui::ShowWave),
@@ -50,30 +38,15 @@ ShowWave::ShowWave(QWidget *parent) :QMainWindow(parent),ui(new Ui::ShowWave),
     connect(ui->ch2CheckBox, SIGNAL(clicked()), this, SLOT(showOrHideCurve2()));
     connect(ui->ch3CheckBox, SIGNAL(clicked()), this, SLOT(showOrHideCurve3()));
     connect(ui->ch4CheckBox, SIGNAL(clicked()), this, SLOT(showOrHideCurve4()));
-
-//    baList<< "Yaw: 0.01"
-//          << "Yaw: -0.98"
-//          << "Yaw: 0.76"
-//          << "Yaw: 0.87"
-//          << "Yaw: 0.45"
-//          << "Yaw: 0.99"
-//          << "Yaw: 0.95"
-//          << "Yaw: 0.55"
-//          << "Yaw: 1.01"
-//          <<"Yaw:1.20";
 }
 
 ShowWave::~ShowWave()
 {
     delete recv_data;
-//    delete grid;
-//    delete ch1_curve;
-//    delete ch2_curve;
-//    delete ch3_curve;
-//    delete ch4_curve;
-
     delete ui;
+#ifdef USE_DEBUG
     qDebug()<<"The showwave window is destoryed!!!";
+#endif
 }
 
 void ShowWave::on_showWaveBtn_clicked()
@@ -95,8 +68,6 @@ void ShowWave::on_showWaveBtn_clicked()
     }
 
     _flag = FLAG_SHOW;
-//    for(int i=0; i<10;i++)
-//        putData(baList[i]);
 }
 
 void ShowWave::on_clearWaveBtn_clicked()
@@ -139,8 +110,14 @@ void ShowWave::on_drawGridBtn_clicked()
 
         ui->wavePlot->replot();
     }
-    else
-        return;
+    else{
+        if(grid->isVisible())
+            grid->setVisible(false);
+        else
+            grid->setVisible(true);
+
+        ui->wavePlot->replot();
+    }
 }
 
 void ShowWave::on_pauseWaveBtn_clicked()
@@ -156,7 +133,9 @@ void ShowWave::on_frame_ch1_editingFinished()
         QMessageBox::critical(this, "Error",
                               tr("帧首不能为空"));
     }
+#ifdef USE_DEBUG
     qDebug()<<"frame_1"<<frame_ch1_str;
+#endif
 }
 
 void ShowWave::on_frame_ch2_editingFinished()
@@ -167,7 +146,9 @@ void ShowWave::on_frame_ch2_editingFinished()
         QMessageBox::critical(this, "Error",
                               tr("帧首不能为空"));
     }
+#ifdef USE_DEBUG
     qDebug()<<"frame_2"<<frame_ch2_str;
+#endif
 }
 
 void ShowWave::on_frame_ch3_editingFinished()
@@ -178,7 +159,9 @@ void ShowWave::on_frame_ch3_editingFinished()
         QMessageBox::critical(this, "Error",
                               tr("帧首不能为空"));
     }
+#ifdef USE_DEBUG
     qDebug()<<"frame_3"<<frame_ch3_str;
+#endif
 }
 
 void ShowWave::on_frame_ch4_editingFinished()
@@ -189,7 +172,9 @@ void ShowWave::on_frame_ch4_editingFinished()
         QMessageBox::critical(this, "Error",
                               tr("帧首不能为空"));
     }
+#ifdef USE_DEBUG
     qDebug()<<"frame_4"<<frame_ch4_str;
+#endif
 }
 
 void ShowWave::showOrHideCurve1()
@@ -255,13 +240,8 @@ void ShowWave::showOrHideCurve4()
 void ShowWave::timerEvent(QTimerEvent *)
 {
     if(_flag == FLAG_SHOW){
-        time ++;
+        time += 0.1;
         ch_x_data.append(time);
-
-//        ch1_y_data.append(qrand()%10);
-//        ch2_y_data.append(qrand()%10);
-//        ch3_y_data.append(qrand()%10);
-//        ch4_y_data.append(qrand()%10);
 
         //重新加载数据
         if(ch1_curve)
@@ -275,7 +255,9 @@ void ShowWave::timerEvent(QTimerEvent *)
 
         ui->wavePlot->replot();
     }
+#ifdef USE_DEBUG
 //    qDebug()<<"Enter timer event";
+#endif
 }
 
 void ShowWave::closeEvent(QCloseEvent *)
@@ -284,7 +266,6 @@ void ShowWave::closeEvent(QCloseEvent *)
     this->killTimer(id_timer);
     time = 0;
     _flag = FLAG_CLEAR;
-
 
     ch_x_data.clear();
     ch1_y_data.clear();
@@ -296,7 +277,9 @@ void ShowWave::closeEvent(QCloseEvent *)
     ui->ch2CheckBox->setChecked(false);
     ui->ch3CheckBox->setChecked(false);
     ui->ch4CheckBox->setChecked(false);
+#ifdef USE_DEBUG
     qDebug()<<"The waveshow window is closed.";
+#endif
 }
 
 //初始化plot
@@ -307,9 +290,10 @@ void ShowWave::initWavePlot(){
     //设置坐标轴的名称
     ui->wavePlot->setAxisTitle(QwtPlot::xBottom, "X->");
     ui->wavePlot->setAxisTitle(QwtPlot::yLeft, "Y->");
-    //设置X轴不自动调节，Y轴自动调节
+    //设置X轴自动调节，Y轴自动调节
     ui->wavePlot->setAxisAutoScale(QwtPlot::xBottom,true);
     ui->wavePlot->setAxisAutoScale(QwtPlot::yLeft, true);
+
     //设置图例在右边
     ui->wavePlot->insertLegend(new QwtLegend, QwtPlot::RightLegend);
     ui->wavePlot->insertLegend(new QwtLegend, QwtPlot::RightLegend);
@@ -328,38 +312,42 @@ void ShowWave::initCurves(quint8 chx){
     case CH1_VALUE:
         ch1_curve = new QwtPlotCurve("CH1");
         ch1_curve->setStyle(QwtPlotCurve::Lines);//直线形式
+        ch1_curve->setCurveFitter(NULL);//不设置曲线插值，就使用原生直线段
         ch1_curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-        ch1_curve->setCurveAttribute(QwtPlotCurve::Fitted, true);//是曲线更光滑
+//        ch1_curve->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
         ch1_curve->setPen(QPen(CH1_CURVE_COLOR, CH_PEN_WIDTH));//设置画笔
         ch1_curve->setSamples(ch_x_data, ch1_y_data);
         ch1_curve->attach(ui->wavePlot);//把曲线附加到plot上
         break;
     case CH2_VALUE:
         ch2_curve = new QwtPlotCurve("CH2");
-        ch2_curve->setStyle(QwtPlotCurve::Lines);//直线形式
+        ch2_curve->setStyle(QwtPlotCurve::Lines);
+        ch2_curve->setCurveFitter(NULL);
         ch2_curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-        ch2_curve->setCurveAttribute(QwtPlotCurve::Fitted, true);//是曲线更光滑
-        ch2_curve->setPen(QPen(CH2_CURVE_COLOR, CH_PEN_WIDTH));//设置画笔
+//        ch2_curve->setCurveAttribute(QwtPlotCurve::Fitted, true);
+        ch2_curve->setPen(QPen(CH2_CURVE_COLOR, CH_PEN_WIDTH));
         ch2_curve->setSamples(ch_x_data, ch2_y_data);
-        ch2_curve->attach(ui->wavePlot);//把曲线附加到plot上
+        ch2_curve->attach(ui->wavePlot);
         break;
     case CH3_VALUE:
         ch3_curve = new QwtPlotCurve("CH3");
-        ch3_curve->setStyle(QwtPlotCurve::Lines);//直线形式
+        ch3_curve->setStyle(QwtPlotCurve::Lines);
+        ch3_curve->setCurveFitter(NULL);
         ch3_curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-        ch3_curve->setCurveAttribute(QwtPlotCurve::Fitted, true);//是曲线更光滑
-        ch3_curve->setPen(QPen(CH3_CURVE_COLOR, CH_PEN_WIDTH));//设置画笔
+//        ch3_curve->setCurveAttribute(QwtPlotCurve::Fitted, true);
+        ch3_curve->setPen(QPen(CH3_CURVE_COLOR, CH_PEN_WIDTH));
         ch3_curve->setSamples(ch_x_data, ch3_y_data);
-        ch3_curve->attach(ui->wavePlot);//把曲线附加到plot上
+        ch3_curve->attach(ui->wavePlot);
         break;
     case CH4_VALUE:
         ch4_curve = new QwtPlotCurve("CH4");
-        ch4_curve->setStyle(QwtPlotCurve::Lines);//直线形式
+        ch4_curve->setStyle(QwtPlotCurve::Lines);
+        ch4_curve->setCurveFitter(NULL);
         ch4_curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-        ch4_curve->setCurveAttribute(QwtPlotCurve::Fitted, true);//是曲线更光滑
-        ch4_curve->setPen(QPen(CH4_CURVE_COLOR, CH_PEN_WIDTH));//设置画笔
+//        ch4_curve->setCurveAttribute(QwtPlotCurve::Fitted, true);
+        ch4_curve->setPen(QPen(CH4_CURVE_COLOR, CH_PEN_WIDTH));
         ch4_curve->setSamples(ch_x_data, ch4_y_data);
-        ch4_curve->attach(ui->wavePlot);//把曲线附加到plot上
+        ch4_curve->attach(ui->wavePlot);
         break;
     }
 }
@@ -367,7 +355,7 @@ void ShowWave::initCurves(quint8 chx){
 void ShowWave::putData(const QByteArray &data)
 {
 
-    *recv_data = QString(data).simplified();
+    *recv_data = QString(data).trimmed();
 
     qDebug()<<*recv_data;
 
@@ -398,6 +386,23 @@ void ShowWave::putData(const QByteArray &data)
             }
         }
     }
+
+//    if(_flag == FLAG_SHOW){
+//        time ++;
+//        ch_x_data.append(time);
+
+//        //重新加载数据
+//        if(ch1_curve)
+//            ch1_curve->setSamples(ch_x_data, ch1_y_data);
+//        if(ch2_curve)
+//            ch2_curve->setSamples(ch_x_data, ch2_y_data);
+//        if(ch3_curve)
+//            ch3_curve->setSamples(ch_x_data, ch3_y_data);
+//        if(ch4_curve)
+//            ch4_curve->setSamples(ch_x_data, ch4_y_data);
+
+//        ui->wavePlot->replot();
+//    }
 }
 
 void ShowWave::on_loadFileBtn_clicked()
@@ -461,9 +466,7 @@ void ShowWave::on_loadFileBtn_clicked()
             }
             fileOut.close();
 
-            QMessageBox::information(this,
-                                     "Information",
-                                     tr("加载成功"));
+            QMessageBox::information(this, "Information", tr("加载成功"));
         }
     }
 }
