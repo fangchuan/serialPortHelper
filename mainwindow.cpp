@@ -37,6 +37,7 @@
 #include "console.h"
 #include "settingsdialog.h"
 #include "showwave.h"
+#include "videoshow.h"
 #include "common.h"
 #include <QMessageBox>
 #include <QLabel>
@@ -58,8 +59,9 @@ MainWindow::MainWindow(QWidget *parent) :
     //Instantiation of serial port and
     //setting dialog ,show wave dialog
     serial = new QSerialPort(this);
-    settings = new SettingsDialog;
-    showWave = new ShowWave;
+    settings = new SettingsDialog();
+    showWave = new ShowWave();
+    video= new videoShow();
 #ifdef  USE_SYSTRAYICON
     //initialize system tray icon
     initSysTrayIcon();
@@ -75,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionConfigure->setEnabled(true);
     ui->actionShowWave->setEnabled(true);
     ui->actionSave->setEnabled(true);
+    ui->actionVideo->setEnabled(true);
     //serial port open error handler
     connect(serial, static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
             this, &MainWindow::handleError);
@@ -85,9 +88,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+
+
     delete settings;
     delete showWave;
+    delete video;
     delete ui;
+
+    settings = NULL;
+    showWave = NULL;
+    video    = NULL;
+
 #ifdef USE_DEBUG
     qDebug()<<"The manwindow is destoryed!!!";
 #endif
@@ -217,6 +228,7 @@ void MainWindow::initActionsConnections()
     connect(ui->actionAboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
     connect(ui->actionShowWave, &QAction::triggered, showWave, &MainWindow::show);
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::saveFile);
+    connect(ui->actionVideo,&QAction::triggered, video, &MainWindow::show);
 }
 
 //设置程序系统托盘图标

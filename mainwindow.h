@@ -53,6 +53,8 @@ QT_END_NAMESPACE
 class Console;
 class SettingsDialog;
 class ShowWave;
+class videoShow;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -83,6 +85,7 @@ private:
     SettingsDialog *settings;
     ShowWave * showWave;
     QSerialPort *serial;
+    videoShow *video;
 };
 
 #endif // MAINWINDOW_H

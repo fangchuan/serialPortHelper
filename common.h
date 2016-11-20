@@ -14,6 +14,8 @@
 #define  CH3_VALUE        3
 #define  CH4_VALUE        4
 
+#define  VIDEO_NUMBER     0
+
 //#define  USE_DEBUG
 //#define  USE_SYSTRAYICON
 
