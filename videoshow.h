@@ -1,7 +1,8 @@
-#ifndef VIDEOSHOW_H
+﻿#ifndef VIDEOSHOW_H
 #define VIDEOSHOW_H
 
 #include <QWidget>
+#include <QTcpSocket>
 #include "highgui/highgui.hpp"
 #include "imgproc/imgproc.hpp"
 using namespace cv;
@@ -17,19 +18,31 @@ class videoShow : public QWidget
 public:
     explicit videoShow(QWidget *parent = 0);
     ~videoShow();
-
+    void startCamera();
+    void ipAddressValider();
 private slots:
     void on_pauseStartBtn_clicked();
 
     void on_takePicBtn_clicked();
 
+    void sendVideoRequest();
+
+    void readVideoStream();
+
+    void readDataStream();
+
+    void socketError();
+
+    void on_savePicBtn_clicked();
+
+    void on_connectIPBtn_clicked();
+
 private:
     Ui::videoShow *ui;
-//    CvCapture*  camera;
     VideoCapture  camera;
-//    QImage        *img;
     Mat          img_rgb;
-//    IplImage*    frame;
+    QTcpSocket* videoClient;
+    QTcpSocket* dataClient;
     bool        paused;
     int       timer_id;
 

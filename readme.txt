@@ -4,3 +4,6 @@
           4、Google地图指定航点
 
 2016-11-20:这种MJPG格式的摄像头输出的还是RGB，但是Mat类存储的是BGR,所以最终赋给qt显示要进行BGR2RGB
+2016-11-21:MJPEGStream使用得是8080端口，其他串口数据传输得另开端口，所以射了两个socket
+           拍照和保存功能实现，下一步考虑如何转换图片数据  QImage-->IplImage/Mat-->QImage
+           添加camShift

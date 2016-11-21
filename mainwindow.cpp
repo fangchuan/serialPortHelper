@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //serial port open error handler
     connect(serial, static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
             this, &MainWindow::handleError);
-    connect(serial, &QSerialPort::readyRead, this, &MainWindow::readData);
+    connect(serial,  &QSerialPort::readyRead, this, &MainWindow::readData);
     connect(console, &Console::getData, this, &MainWindow::writeData);
 }
 

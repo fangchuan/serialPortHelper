@@ -24,7 +24,7 @@
     <normalon>:/images/video.png</normalon>
    </iconset>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>590</x>
@@ -69,58 +69,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
-   <property name="geometry">
-    <rect>
-     <x>12</x>
-     <y>470</y>
-     <width>204</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QPushButton" name="pauseStartBtn">
-      <property name="maximumSize">
-       <size>
-        <width>100</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>停止/播放</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <spacer name="horizontalSpacer_2">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>40</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item>
-     <widget class="QPushButton" name="saveVideoBtn">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="text">
-       <string>保存视频</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -164,6 +113,12 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>320</width>
+        <height>240</height>
+       </size>
+      </property>
       <property name="text">
        <string>Pictrue</string>
       </property>
@@ -171,16 +126,35 @@
     </item>
    </layout>
   </widget>
+  <widget class="QPushButton" name="pauseStartBtn">
+   <property name="geometry">
+    <rect>
+     <x>13</x>
+     <y>471</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>100</width>
+     <height>16777215</height>
+    </size>
+   </property>
+   <property name="text">
+    <string>停止/播放</string>
+   </property>
+  </widget>
   <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>11</x>
      <y>10</y>
      <width>781</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_4">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QLabel" name="IPLabel">
       <property name="text">
@@ -212,7 +186,33 @@
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="posrtEdit"/>
+     <widget class="QLineEdit" name="portEdit"/>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer_2">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QPushButton" name="connectIPBtn">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>连接</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

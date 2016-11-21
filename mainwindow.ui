@@ -199,7 +199,7 @@
      <normaloff>:/images/video.png</normaloff>:/images/video.png</iconset>
    </property>
    <property name="text">
-    <string>Video</string>
+    <string>videoShow</string>
    </property>
   </action>
  </widget>
