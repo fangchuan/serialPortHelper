@@ -67,11 +67,18 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionConnect"/>
+   <addaction name="separator"/>
    <addaction name="actionDisconnect"/>
+   <addaction name="separator"/>
    <addaction name="actionConfigure"/>
+   <addaction name="separator"/>
    <addaction name="actionClear"/>
+   <addaction name="separator"/>
    <addaction name="actionShowWave"/>
+   <addaction name="separator"/>
    <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionVideo"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionAbout">
@@ -184,6 +191,15 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionVideo">
+   <property name="icon">
+    <iconset resource="terminal.qrc">
+     <normaloff>:/images/video.png</normaloff>:/images/video.png</iconset>
+   </property>
+   <property name="text">
+    <string>videoShow</string>
    </property>
   </action>
  </widget>

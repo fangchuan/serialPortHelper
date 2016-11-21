@@ -1,7 +1,7 @@
-#include "videoshow.h"
+﻿#include "videoshow.h"
 #include "ui_videoshow.h"
 #include "common.h"
-#include <QTimer>
+#include <QTime>
 #include <QMessageBox>
 #include <QDebug>
 
@@ -13,7 +13,8 @@ videoShow::videoShow(QWidget *parent) :
     ui->setupUi(this);
     this->setWindowTitle("Video Show");
 
-
+    videoCilent = new QTcpSocket;
+    videoCilent->connectToHost(ui->IPEdit->text(), ui->portEdit->text().toInt(), QIODevice::ReadWrite);
     camera.open(VIDEO_NUMBER);
 
 
@@ -24,6 +25,9 @@ videoShow::videoShow(QWidget *parent) :
 
     }
 
+    connect(videoCilent, &QTcpSocket::connected, this, &sendVideoRequest);
+    connect(videoCilent, &QTcpSocket::readyRead, this, &readVideoStream);
+    connect(videoCilent, &QTcpSocket::error,   this, &socketError);
 }
 
 videoShow::~videoShow()
@@ -60,6 +64,11 @@ void videoShow::timerEvent(QTimerEvent*)
             QMessageBox::warning(this, tr("ERROR"), tr("VideoPlaying error"));
             return ;
         }
+//        QTime time_stamp;
+//        time_stamp=time_stamp.currentTime();
+        QString str=(QTime::currentTime()).toString();
+        putText(img_yuv, str.toLatin1().data(),
+                Point(0,30),3,1,Scalar(255,0,0),1,LINE_8,false);
         cvtColor(img_yuv,img_rgb,CV_BGR2RGB);
         QImage image((uchar*)img_rgb.data, img_rgb.cols, img_rgb.rows,QImage::Format_RGB888);
         ui->videoLabel->setPixmap(QPixmap::fromImage(image));
@@ -74,4 +83,22 @@ void videoShow::closeEvent(QCloseEvent *)
 #ifdef USE_DEBUG
     qDebug()<<"videoShow has been closed";
 #endif
+}
+
+void videoShow::sendVideoRequest()
+{
+    QByteArray req("GET /?action=stream\n\n");
+    QDataStream out(&req, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_6);
+    videoCilent->write(out);
+}
+
+void videoShow::readVideoStream()
+{
+
+}
+
+void videoShow::socketError()
+{
+
 }

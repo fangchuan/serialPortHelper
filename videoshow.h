@@ -1,7 +1,8 @@
-#ifndef VIDEOSHOW_H
+﻿#ifndef VIDEOSHOW_H
 #define VIDEOSHOW_H
 
 #include <QWidget>
+#include <QTcpSocket>
 #include "highgui/highgui.hpp"
 #include "imgproc/imgproc.hpp"
 using namespace cv;
@@ -23,13 +24,16 @@ private slots:
 
     void on_takePicBtn_clicked();
 
+    void sendVideoRequest();
+
+    void readVideoStream();
+
+    void socketError();
 private:
     Ui::videoShow *ui;
-//    CvCapture*  camera;
     VideoCapture  camera;
-//    QImage        *img;
     Mat          img_rgb;
-//    IplImage*    frame;
+    QTcpSocket* videoCilent;
     bool        paused;
     int       timer_id;
 
