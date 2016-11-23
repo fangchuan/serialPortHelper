@@ -7,10 +7,13 @@
 #include <QFileDialog>
 #include <QRegExp>
 #include <QRegExpValidator>
+#include <QScrollArea>
 #include <QHostAddress>
+#include <QPainter>
 #include <QMessageBox>
 #include <QDebug>
 
+void imageDrawText(QImage* img,QString str);
 
 
 videoShow::videoShow(QWidget *parent) :
@@ -23,8 +26,17 @@ videoShow::videoShow(QWidget *parent) :
     ui->setupUi(this);
     this->setWindowTitle("Video Show");
 
+//    QRect rcLabel = ui->videoLabel->geometry();
+//    //为标签添加滚动区域，方便浏览大图
+//    QScrollArea *pSA = new QScrollArea(this);   //该对象交给主窗体自动管理，不用手动删除
+//    //把标签填充到滚动区域里
+//    pSA->setWidget(ui->videoLabel);
+//    //设置滚动区域占据矩形
+//    pSA->setGeometry(rcLabel);
+
     videoClient = new QTcpSocket;
     dataClient = new QTcpSocket;
+
 
     ipAddressValider();
 
@@ -50,16 +62,12 @@ void videoShow::on_pauseStartBtn_clicked()
 //
 void videoShow::on_takePicBtn_clicked()
 {
-    Mat  img_bgr;
-    camera >>  img_bgr;
-    if(img_bgr.empty()){
+    const QPixmap *pixmap = ui->videoLabel->pixmap();
+    if(!pixmap){
         QMessageBox::warning(this, tr("ERROR"), tr("Takingpicture error"));
         return ;
     }
-
-    cvtColor(img_bgr, img_rgb, CV_BGR2RGB);
-    QImage image((uchar*)img_rgb.data, img_rgb.cols, img_rgb.rows,QImage::Format_RGB888);
-    ui->pictureLabel->setPixmap(QPixmap::fromImage(image));
+    ui->pictureLabel->setPixmap(*pixmap);
 }
 //
 void videoShow::timerEvent(QTimerEvent*)
@@ -76,12 +84,10 @@ void videoShow::timerEvent(QTimerEvent*)
 #ifdef  USE_DEBUG
         qDebug()<<str;
 #endif
-        putText(img_bgr, str.toStdString(),
-                Point(0,30),3,1,Scalar(255,0,0),2,8,false);
 
         cvtColor(img_bgr,img_rgb,CV_BGR2RGB);
-//        imshow("video", img_rgb);
         QImage image((uchar*)img_rgb.data, img_rgb.cols, img_rgb.rows,QImage::Format_RGB888);
+        imageDrawText(&image, str);
         ui->videoLabel->setPixmap(QPixmap::fromImage(image));
     }
 }
@@ -204,4 +210,18 @@ void videoShow::startCamera()
     {
         QMessageBox::warning(this, tr("ERROR"), tr("Opening camera %1 error").arg(VIDEO_NUMBER));
     }
+}
+//
+void imageDrawText(QImage* img,QString str)
+{
+    QPainter painter(img) ;
+    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    QPen pen = painter.pen();
+    pen.setColor(Qt::red);
+    QFont font = painter.font();
+    font.setBold(true);//加粗
+    font.setPixelSize(20);//改变字体大小
+    painter.setPen(pen);
+    painter.setFont(font);
+    painter.drawText(img->rect(), Qt::AlignCenter,str);
 }
