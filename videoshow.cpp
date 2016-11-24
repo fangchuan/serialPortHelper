@@ -2,7 +2,6 @@
 #include "ui_videoshow.h"
 #include "common.h"
 #include "core/core.hpp"
-#include <QTime>
 #include <QFile>
 #include <QFileDialog>
 #include <QRegExp>
@@ -13,15 +12,14 @@
 #include <QMessageBox>
 #include <QDebug>
 
-void imageDrawText(QImage* img,QString str);
 
 
 videoShow::videoShow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::videoShow),
-    paused(false),
     videoClient(NULL),
-    dataClient(NULL)
+    dataClient(NULL),
+    paused(false)
 {
     ui->setupUi(this);
     this->setWindowTitle("Video Show");
@@ -80,14 +78,14 @@ void videoShow::timerEvent(QTimerEvent*)
             return ;
         }
 
-        QString str=(QTime::currentTime()).toString();
+
 #ifdef  USE_DEBUG
         qDebug()<<str;
 #endif
 
         cvtColor(img_bgr,img_rgb,CV_BGR2RGB);
         QImage image((uchar*)img_rgb.data, img_rgb.cols, img_rgb.rows,QImage::Format_RGB888);
-        imageDrawText(&image, str);
+
         ui->videolabel->setPixmap(QPixmap::fromImage(image));
 
         ui->videolabel->trackSelectObject();
@@ -213,17 +211,4 @@ void videoShow::startCamera()
         QMessageBox::warning(this, tr("ERROR"), tr("Opening camera %1 error").arg(VIDEO_NUMBER));
     }
 }
-//
-void imageDrawText(QImage* img,QString str)
-{
-    QPainter painter(img) ;
-    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-    QPen pen = painter.pen();
-    pen.setColor(Qt::red);
-    QFont font = painter.font();
-    font.setBold(true);//加粗
-    font.setPixelSize(20);//改变字体大小
-    painter.setPen(pen);
-    painter.setFont(font);
-    painter.drawText(img->rect(), Qt::AlignCenter,str);
-}
+

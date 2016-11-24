@@ -12,4 +12,5 @@
 2016-11-23:只需要QImage2IplImage，在Mat上做ObjectTrack工作，同时在videoLabel上对QImage画出追踪的物体,无需再IplImage2QImage
 
 2016-11-24:完成videoLabel的提升和重绘操作
-           QImage2IplImage有问题,
+           QImage2IplImage有问题,已替换
+           camShift基本功能实现，明天考虑调阈值VMIN VMAX SMIN

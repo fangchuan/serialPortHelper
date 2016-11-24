@@ -1,11 +1,18 @@
-#include "videolabel.h"
+﻿#include "videolabel.h"
 #include "common.h"
 #include <QEvent>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QTime>
 #include <QDebug>
 
-videoLabel::videoLabel(QWidget *parent):QLabel(parent)
+#define   VMIN  10
+#define   VMAX  256
+#define   SMIN  30
+
+videoLabel::videoLabel(QWidget *parent):QLabel(parent),
+    selectObject(false),
+    trackObject(0)
 {
 
 }
@@ -14,10 +21,19 @@ videoLabel::~videoLabel()
 {
 
 }
-
+/*
+*********************************************************************************************************
+*	函 数 名: paintEvent
+*	功能说明: 重绘事件函数
+*	形    参:
+*           pe: 指向QPaintEvent的指针
+*	返 回 值: 无
+*********************************************************************************************************
+*/
 void videoLabel::paintEvent(QPaintEvent *pe)
 {
     QLabel::paintEvent(pe) ;
+
     QPainter painter(this) ;
     QPen pen = painter.pen();
     pen.setColor(Qt::red);
@@ -27,7 +43,11 @@ void videoLabel::paintEvent(QPaintEvent *pe)
     painter.setPen(pen);
     painter.setFont(font);
 
-    //如果选择了感兴趣区域，则负片表示选中的区域
+    //display current time on the videolabel
+    QString str=(QTime::currentTime()).toString();
+    painter.drawText(QPoint(0,30), str);
+
+    //如果选择了感兴趣区域，则用红色矩形画出选中区域
     if( selectObject && selection.width > 0 && selection.height > 0 )
     {
         painter.drawRect(selection.x, selection.y,
@@ -124,65 +144,64 @@ void videoLabel::mouseMoveEvent(QMouseEvent *me)
 */
 void videoLabel::trackSelectObject()
 {
-    Rect trackWindow;
+
     int hsize = 16;
     float hranges[] = {0,180};
     const float* phranges = hranges;
 
     const QPixmap *pixmap = this->pixmap();
-    const QImage *qImage = &(pixmap->toImage());
+    const QImage qImage = pixmap->toImage();
+#ifdef USE_DEBUG
+    qDebug()<<qImage.format();
+#endif
+    Mat hsv, hue, mask;
 
-    Mat frame, hsv, hue, mask, hist, backproj;
-    IplImage *iplframe = &frame.operator IplImage();
+    image = Mat(qImage.height(), qImage.width(), CV_8UC4,
+                (void*)qImage.constBits(), qImage.bytesPerLine());
 
-        qImageToIplImage(qImage, iplframe);
-        if( frame.empty() ){
+        if( image.empty() ){
             qDebug()<<"frame convertion failure";
             return;
         }
-
-        frame.copyTo(image);
-
+//        frame.copyTo(image);
         {   //为了减少光照变化对目标跟踪的影响，首先将图像从RGB颜色空间转换到HSV颜色空间
             cvtColor(image, hsv, COLOR_BGR2HSV);
 
-        if( trackObject )
-        {
-            int _vmin = vmin, _vmax = vmax;
-
-            inRange(hsv, Scalar(0, smin, MIN(_vmin,_vmax)),
-                    Scalar(180, 256, MAX(_vmin, _vmax)), mask);
-            int ch[] = {0, 0};
-            hue.create(hsv.size(), hsv.depth());
-            //将hsv图片中的第一列复制到hue图片的第一列,即提取亮度
-            mixChannels(&hsv, 1, &hue, 1, ch, 1);
-
-            if( trackObject < 0 )
-            {   //对H分量进行直方图统计，直方图代表了不同H分量取值出现的概率，或者说可以据此查找出H分量的大小为x时的概率或像素个数，即得到颜色概率查找表；
-                Mat roi(hue, selection), maskroi(mask, selection);
-                calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
-                normalize(hist, hist, 0, 255, CV_MINMAX);
-
-                trackWindow = selection;
-                trackObject = 1;
-            }
-            //计算灰度图的反向投影，得到颜色概率查找表；
-            calcBackProject(&hue, 1, 0, hist, backproj, &phranges);
-            backproj &= mask;
-            //camShift算法
-            trackBox = CamShift(backproj, trackWindow,
-                                TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
-            if( trackWindow.area() <= 1 )
+            if( trackObject )
             {
-                int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5)/6;
-                trackWindow = Rect(trackWindow.x - r, trackWindow.y - r,
-                                   trackWindow.x + r, trackWindow.y + r) &
-                              Rect(0, 0, cols, rows);
-            }
+                int _vmin = VMIN, _vmax = VMAX;
 
-//            if( backprojMode )
-//                cvtColor( backproj, image, COLOR_GRAY2BGR );
-        }
+                inRange(hsv, Scalar(0, SMIN, MIN(_vmin,_vmax)),
+                        Scalar(180, 256, MAX(_vmin, _vmax)), mask);
+                int ch[] = {0, 0};
+                hue.create(hsv.size(), hsv.depth());
+                //将hsv图片中的第一列复制到hue图片的第一列,即提取亮度
+                mixChannels(&hsv, 1, &hue, 1, ch, 1);
+
+                if( trackObject < 0 )
+                {   //对H分量进行直方图统计，直方图代表了不同H分量取值出现的概率
+                    //或者说可以据此查找出H分量的大小为x时的概率或像素个数，即得到颜色概率查找表；
+                    Mat roi(hue, selection), maskroi(mask, selection);
+                    calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
+                    normalize(hist, hist, 0, 255, CV_MINMAX);
+
+                    trackWindow = selection;
+                    trackObject = 1;
+                }
+                //计算灰度图的反向投影，得到颜色概率查找表；
+                calcBackProject(&hue, 1, 0, hist, backproj, &phranges);
+                backproj &= mask;
+                //camShift算法
+                trackBox = CamShift(backproj, trackWindow,
+                                    TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
+                if( trackWindow.area() <= 1 )
+                {
+                    int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5)/6;
+                    trackWindow = Rect(trackWindow.x - r, trackWindow.y - r,
+                                       trackWindow.x + r, trackWindow.y + r) &
+                                  Rect(0, 0, cols, rows);
+                }
+             }
         }
 }
 

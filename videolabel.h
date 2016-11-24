@@ -1,4 +1,4 @@
-#ifndef VIDEOLABEL_H
+﻿#ifndef VIDEOLABEL_H
 #define VIDEOLABEL_H
 
 #include <QWidget>
@@ -24,13 +24,15 @@ private:
     virtual void mouseMoveEvent(QMouseEvent *me);
 
 
-    Mat  image;
+    Mat  image,hist, backproj;
     Point origin;
     Rect selection;
+    Rect trackWindow;
     RotatedRect trackBox;
+
     bool selectObject;
     qint8 trackObject;
-    int vmin = 10, vmax = 256, smin = 30;
+
 };
 
 #endif // VIDEOLABEL_H

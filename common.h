@@ -24,7 +24,6 @@ using namespace cv;
 //#define  USE_DEBUG
 //#define  USE_SYSTRAYICON
 
-extern void qImageToIplImage(const QImage * qImage,IplImage *iplImageBuffer);
-extern void IplImageToQImage(const IplImage * iplImage, quint8 *qImageBuffer, QImage *qimage,
-                             double mini = 0, double maxi =0 );
+extern QImage Mat2QImage(const Mat &mat);
+extern Mat QImage2Mat(const QImage & image);
 #endif // COMMON_H
