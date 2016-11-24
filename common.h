@@ -2,6 +2,11 @@
 #define COMMON_H
 
 #include "qnamespace.h"
+#include <QWidget>
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+using namespace cv;
+
 
 #define  CH1_CURVE_COLOR  Qt::blue
 #define  CH2_CURVE_COLOR  Qt::red
@@ -19,4 +24,7 @@
 //#define  USE_DEBUG
 //#define  USE_SYSTRAYICON
 
+extern void qImageToIplImage(const QImage * qImage,IplImage *iplImageBuffer);
+extern void IplImageToQImage(const IplImage * iplImage, quint8 *qImageBuffer, QImage *qimage,
+                             double mini = 0, double maxi =0 );
 #endif // COMMON_H

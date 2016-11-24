@@ -18,7 +18,8 @@ class videoShow : public QWidget
 public:
     explicit videoShow(QWidget *parent = 0);
     ~videoShow();
-
+    void startCamera();
+    void ipAddressValider();
 private slots:
     void on_pauseStartBtn_clicked();
 
@@ -28,12 +29,20 @@ private slots:
 
     void readVideoStream();
 
+    void readDataStream();
+
     void socketError();
+
+    void on_savePicBtn_clicked();
+
+    void on_connectIPBtn_clicked();
+
 private:
     Ui::videoShow *ui;
     VideoCapture  camera;
     Mat          img_rgb;
-    QTcpSocket* videoCilent;
+    QTcpSocket* videoClient;
+    QTcpSocket* dataClient;
     bool        paused;
     int       timer_id;
 
