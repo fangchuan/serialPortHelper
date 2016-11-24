@@ -13,9 +13,9 @@ class videoLabel: public QLabel
 {
     Q_OBJECT
 public:
-    videoLabel(QLabel *parent);
+    explicit videoLabel(QWidget *parent);
     ~videoLabel();
-    int trackSelectObject();
+    void trackSelectObject();
 
 private:
     virtual void paintEvent(QPaintEvent* pe);
@@ -27,6 +27,7 @@ private:
     Mat  image;
     Point origin;
     Rect selection;
+    RotatedRect trackBox;
     bool selectObject;
     qint8 trackObject;
     int vmin = 10, vmax = 256, smin = 30;

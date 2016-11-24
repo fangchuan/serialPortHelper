@@ -3,8 +3,9 @@
 #include <QEvent>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QDebug>
 
-videoLabel::videoLabel(QLabel *parent):QLabel(parent)
+videoLabel::videoLabel(QWidget *parent):QLabel(parent)
 {
 
 }
@@ -18,9 +19,30 @@ void videoLabel::paintEvent(QPaintEvent *pe)
 {
     QLabel::paintEvent(pe) ;
     QPainter painter(this) ;
-    painter.drawText(QPoint(0,30),"text");
-    return ;
+    QPen pen = painter.pen();
+    pen.setColor(Qt::red);
+    QFont font = painter.font();
+    font.setBold(true);
+    font.setPixelSize(20);
+    painter.setPen(pen);
+    painter.setFont(font);
 
+    //如果选择了感兴趣区域，则负片表示选中的区域
+    if( selectObject && selection.width > 0 && selection.height > 0 )
+    {
+        painter.drawRect(selection.x, selection.y,
+                         selection.width, selection.height);
+    }
+    if(trackBox.size.width >0 && trackBox.size.height > 0)
+    {
+        //将trackBox画出来
+//        ellipse( image, trackBox, Scalar(0,0,255), 3, CV_AA );
+        int x = trackBox.boundingRect().x ;
+        int y = trackBox.boundingRect().y ;
+        int width = trackBox.boundingRect().width;
+        int height = trackBox.boundingRect().height;
+        painter.drawEllipse(QRect(x,y,width,height));
+    }
 }
 /*
 *********************************************************************************************************
@@ -39,8 +61,11 @@ void videoLabel::mousePressEvent(QMouseEvent *me)
             origin = Point(me->x(), me->y());
             selection = Rect(me->x(), me->y(), 0, 0);
             selectObject = true;
+#ifdef  USE_DEBUG
+            qDebug()<<"x"<<selection.x
+                   <<"y"<<selection.y;
+#endif
          }
-
 }
 /*
 *********************************************************************************************************
@@ -53,11 +78,14 @@ void videoLabel::mousePressEvent(QMouseEvent *me)
 */
 void videoLabel::mouseReleaseEvent(QMouseEvent *me)
 {
-    if(me->button() == Qt::RightButton)
+    if(me->button() == Qt::LeftButton)
     {
         selectObject = false;
         if( selection.width > 0 && selection.height > 0 )
             trackObject = -1;
+#ifdef  USE_DEBUG
+            qDebug()<<"mouse Release";
+#endif
      }
 }
 /*
@@ -78,8 +106,13 @@ void videoLabel::mouseMoveEvent(QMouseEvent *me)
         selection.width = std::abs(me->x() - origin.x);
         selection.height = std::abs(me->y() - origin.y);
 
-        selection &= Rect(0, 0, image.cols, image.rows);
+//        selection &= Rect(0, 0, image.cols, image.rows);
+#ifdef  USE_DEBUG
+        qDebug()<<"width"<<selection.width
+               <<"height"<<selection.height;
+#endif
     }
+
 }
 /*
 *********************************************************************************************************
@@ -89,7 +122,7 @@ void videoLabel::mouseMoveEvent(QMouseEvent *me)
 *	返 回 值: 无
 *********************************************************************************************************
 */
-int videoLabel::trackSelectObject()
+void videoLabel::trackSelectObject()
 {
     Rect trackWindow;
     int hsize = 16;
@@ -101,15 +134,12 @@ int videoLabel::trackSelectObject()
 
     Mat frame, hsv, hue, mask, hist, backproj;
     IplImage *iplframe = &frame.operator IplImage();
-    bool paused = false;
-
-    for(;;)
-    {
 
         qImageToIplImage(qImage, iplframe);
-        if( frame.empty() )
-            break;
-
+        if( frame.empty() ){
+            qDebug()<<"frame convertion failure";
+            return;
+        }
 
         frame.copyTo(image);
 
@@ -140,7 +170,7 @@ int videoLabel::trackSelectObject()
             calcBackProject(&hue, 1, 0, hist, backproj, &phranges);
             backproj &= mask;
             //camShift算法
-            RotatedRect trackBox = CamShift(backproj, trackWindow,
+            trackBox = CamShift(backproj, trackWindow,
                                 TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 10, 1 ));
             if( trackWindow.area() <= 1 )
             {
@@ -150,31 +180,9 @@ int videoLabel::trackSelectObject()
                               Rect(0, 0, cols, rows);
             }
 
-            if( backprojMode )
-                cvtColor( backproj, image, COLOR_GRAY2BGR );
-            //将trackBox画出来
-//            ellipse( image, trackBox, Scalar(0,0,255), 3, CV_AA );
-//            int x = trackBox.boundingRect().x ;
-//            int y = trackBox.boundingRect().y ;
-//            int width = trackBox.boundingRect().width;
-//            int height = trackBox.boundingRect().height;
-//            QPainter painter;
-//            QPen pen = painter.pen();
-//            pen.setColor(Qt::red);
-//            painter.drawEllipse(QRect(x,y,width,height));
+//            if( backprojMode )
+//                cvtColor( backproj, image, COLOR_GRAY2BGR );
         }
-    }
-    else if( trackObject < 0 )
-        paused = false;
-
-    //如果选择了感兴趣区域，则负片表示选中的区域
-    if( selectObject && selection.width > 0 && selection.height > 0 )
-    {
-        Mat roi(image, selection);
-        bitwise_not(roi, roi);
-    }
-
-    imshow( "CamShift Demo", image );
-    }
+        }
 }
 

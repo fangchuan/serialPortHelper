@@ -62,12 +62,12 @@ void videoShow::on_pauseStartBtn_clicked()
 //
 void videoShow::on_takePicBtn_clicked()
 {
-    const QPixmap *pixmap = ui->videoLabel->pixmap();
+    const QPixmap *pixmap = ui->videolabel->pixmap();
     if(!pixmap){
         QMessageBox::warning(this, tr("ERROR"), tr("Takingpicture error"));
         return ;
     }
-    ui->pictureLabel->setPixmap(*pixmap);
+    ui->picturelabel->setPixmap(*pixmap);
 }
 //
 void videoShow::timerEvent(QTimerEvent*)
@@ -88,7 +88,9 @@ void videoShow::timerEvent(QTimerEvent*)
         cvtColor(img_bgr,img_rgb,CV_BGR2RGB);
         QImage image((uchar*)img_rgb.data, img_rgb.cols, img_rgb.rows,QImage::Format_RGB888);
         imageDrawText(&image, str);
-        ui->videoLabel->setPixmap(QPixmap::fromImage(image));
+        ui->videolabel->setPixmap(QPixmap::fromImage(image));
+
+        ui->videolabel->trackSelectObject();
     }
 }
 //
@@ -146,7 +148,7 @@ void videoShow::on_savePicBtn_clicked()
         return ;
     }
 
-    const QPixmap *pixmap = ui->pictureLabel->pixmap();
+    const QPixmap *pixmap = ui->picturelabel->pixmap();
     if(pixmap){
         if(pixmap->save(fn)){
             QMessageBox::information(this,
