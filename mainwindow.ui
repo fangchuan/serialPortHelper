@@ -47,6 +47,7 @@
     <addaction name="actionClear"/>
     <addaction name="actionShowWave"/>
     <addaction name="actionSave"/>
+    <addaction name="actionVideo"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">

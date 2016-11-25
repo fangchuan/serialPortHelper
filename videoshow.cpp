@@ -1,9 +1,8 @@
 ﻿#include "videoshow.h"
 #include "ui_videoshow.h"
+#include "picturedialog.h"
 #include "common.h"
 #include "core/core.hpp"
-#include <QFile>
-#include <QFileDialog>
 #include <QRegExp>
 #include <QRegExpValidator>
 #include <QScrollArea>
@@ -65,8 +64,11 @@ void videoShow::on_takePicBtn_clicked()
         QMessageBox::warning(this, tr("ERROR"), tr("Takingpicture error"));
         return ;
     }
-    ui->picturelabel->setPixmap(*pixmap);
+
+    pictureDialog pd(*pixmap);
+    pd.exec();//模态对话框
 }
+
 //
 void videoShow::timerEvent(QTimerEvent*)
 {
@@ -133,34 +135,6 @@ void videoShow::socketError()
     QMessageBox::warning(this,
                          tr("Error"),
                          tr("Tcp Connection Fail"));
-}
-//
-void videoShow::on_savePicBtn_clicked()
-{
-    QString fn = QFileDialog::getSaveFileName(
-                this,
-                tr("保存图片"),
-                ".",
-                ("jpeg file(*.jpg);;png file(*.png);;bmp file(*.bmp)"));
-    if(fn.isEmpty()){
-        return ;
-    }
-
-    const QPixmap *pixmap = ui->picturelabel->pixmap();
-    if(pixmap){
-        if(pixmap->save(fn)){
-            QMessageBox::information(this,
-                                     tr("Tip"),
-                                     tr("Save Pictrue Success"));
-        }
-        else{
-            QMessageBox::warning(this,
-                                 tr("Error"),
-                                 tr("Save Pictrue Fail"));
-        }
-    }
-
-//    imwrite(fn,);
 }
 //
 void videoShow::on_connectIPBtn_clicked()

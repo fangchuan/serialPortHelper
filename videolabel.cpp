@@ -8,7 +8,7 @@
 
 #define   VMIN  10
 #define   VMAX  256
-#define   SMIN  30
+#define   SMIN  50
 
 videoLabel::videoLabel(QWidget *parent):QLabel(parent),
     selectObject(false),

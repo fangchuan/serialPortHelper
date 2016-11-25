@@ -33,8 +33,6 @@ private slots:
 
     void socketError();
 
-    void on_savePicBtn_clicked();
-
     void on_connectIPBtn_clicked();
 
 private:
