@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/connect.png</file>
+        <file>images/disconnect.png</file>
+        <file>images/application-exit.png</file>
+        <file>images/settings.png</file>
+        <file>images/clear.png</file>
+        <file>images/wave.png</file>
+        <file>images/log.jpg</file>
+        <file>images/sysicon.ico</file>
+        <file>images/save.png</file>
+        <file>images/video.png</file>
+        <file>images/baidumap.png</file>
+        <file>images/wifi.png</file>
+        <file>images/button_origin.png</file>
+        <file>images/button_running.png</file>
+        <file>images/button_stop.png</file>
+    </qresource>
+</RCC>
